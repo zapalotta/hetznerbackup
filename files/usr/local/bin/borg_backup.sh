@@ -32,20 +32,24 @@ do
   EXCLUDE_PARAMS="$EXCLUDE_PARAMS --exclude ${param}"
 done
 
-# place pre-backup-stuff here
 echo "====== Starting pre exec scripts: $(date) ======"
 info "====== Starting pre exec scripts: $(date) ======"
 
-run-parts /etc/borg_backup.d/
+run-parts /etc/borg_backup.d/preexec/
 
 
 borg create $REPOSITORY::"{$BACKUP_TIMESTAMP}" $INCLUDE_FOLDERS $EXCLUDE_PARAMS -v --stats 2>&1
 
 echo "====== Backup finished: $(date) ======"
 
-echo "====== Pruning Backup: $(date) ======"
+echo "====== Starting post exec scripts: $(date) ======"
+info "====== Starting post exec scripts: $(date) ======"
 
-info "Pruning main repository"
+run-parts /etc/borg_backup.d/postexec/
+
+echo "====== Pruning Backup: $(date) ======"
+info "====== Pruning Backup: $(date) ======"
+
 
 borg prune                          \
     --list                          \
@@ -56,9 +60,11 @@ borg prune                          \
     $REPOSITORY
 
 echo "====== Pruning finished: $(date) ======"
+info "====== Pruning finished: $(date) ======"
 
 
 echo "====== Status: $(date) ======"
+info "====== Status: $(date) ======"
 
 borg list $REPOSITORY
 

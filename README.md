@@ -103,9 +103,11 @@ After running the playbook you will get some secrets on the ansible machine, see
 
 Just run /usr/local/bin/borg_backup.sh on the target host to create the first backup. You can also leave this job to cron ...
 
-## Pre executing stuff
+## Pre and post executing 
 
-Place executable scrips in ```/etc/borg_backup.d/```, these will be executed before the backup, e.g. DB dumps.
+Place executable scrips in ```/etc/borg_backup.d/preexec/```, these will be executed before the backup, e.g. DB dumps.
+
+Place executable scrips in ```/etc/borg_backup.d/postexec/```, these will be executed after the backup, e.g. start services again
 
 
 # Installed scripts

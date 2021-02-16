@@ -53,9 +53,12 @@
 
 - name: borg - create pre-exec dir
   file:
-    path: /etc/borg_backup.d
+    path: "/etc/borg_backup.d/{{ item }}"
     state: directory
     mode: 0700
+  with_items:
+    - preexec
+    - postexec
 
 - name: borg - create config file
   template:
