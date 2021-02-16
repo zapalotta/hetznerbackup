@@ -86,7 +86,7 @@ backuphosts:
 Make sure that you can ssh to the master storagebox from the ansible machine. 
 
 ```
-ansible-playbook -i hosts.yml 
+./ansible-playbook -i hosts.yml 
 ```
 
 After running the playbook you will get some secrets on the ansible machine, see the last debug message. Keep them at a safe place
