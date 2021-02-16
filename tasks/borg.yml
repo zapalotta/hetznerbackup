@@ -51,6 +51,12 @@
     - "borg_keyexport.sh"
     - "borg_info.sh"
 
+- name: borg - create pre-exec dir
+  file:
+    path: /etc/borg_backup.d
+    state: directory
+    mode: 0700
+
 - name: borg - create config file
   template:
     src: etc/borg_backup.conf.j2

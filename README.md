@@ -99,6 +99,15 @@ After running the playbook you will get some secrets on the ansible machine, see
 * ```id_rsa_host1.pub```
   * Storagebox Subaccount ssh keypair
 
+## Creating the first backup
+
+Just run /usr/local/bin/borg_backup.sh on the target host to create the first backup. You can also leave this job to cron ...
+
+## Pre executing stuff
+
+Place executable scrips in ```/etc/borg_backup.d/```, these will be executed before the backup, e.g. DB dumps.
+
+
 # Installed scripts
 
 All scripts are installed in ```/usr/local/bin/```

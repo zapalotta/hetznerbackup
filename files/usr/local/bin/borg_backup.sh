@@ -33,6 +33,11 @@ do
 done
 
 # place pre-backup-stuff here
+echo "====== Starting pre exec scripts: $(date) ======"
+info "====== Starting pre exec scripts: $(date) ======"
+
+run-parts /etc/borg_backup.d/
+
 
 borg create $REPOSITORY::"{$BACKUP_TIMESTAMP}" $INCLUDE_FOLDERS $EXCLUDE_PARAMS -v --stats 2>&1
 
