@@ -1,0 +1,181 @@
+---
+- name: storagebox - get storagebox data from hetzner robot
+  uri:
+    url: "https://robot-ws.your-server.de/storagebox"
+    user: "{{ hetzner_webservice_user }}" 
+    password: "{{ hetzner_webservice_pass }}"
+    method: GET
+    force_basic_auth: yes
+  register: storagebox_raw
+  delegate_to: localhost
+  when:
+    - hetzner_storagebox_id is not defined
+
+- debug:
+    var: storagebox_raw
+    verbosity: 3
+  when:
+    - hetzner_storagebox_id is not defined
+
+- name: storagebx - get storagebox ID
+  set_fact:
+    hetzner_storagebox_id: "{{ storagebox_raw.json | json_query( query ) | first }}"
+  vars:
+    query: "[?storagebox.linked_server==`{{ hetzner_server_id }}`].storagebox.id"
+  when:
+    - hetzner_storagebox_id is not defined
+# FIXME: this fails when a wrong server id is given
+
+- name: storagebox - create temporary mount dir
+  file:
+    state: directory
+    path: "{{ hetznerbackup_tempmount }}"
+  delegate_to: localhost
+
+- name: storagebox - check if temporary mountpoint is already mounted
+  command: '/bin/mountpoint -q {{ hetznerbackup_tempmount }}'
+  register: mount_check
+  ignore_errors: true
+  changed_when: "mount_check.rc != 0"
+  delegate_to: localhost
+
+- name: storagebox - mount complete storagebox
+  command: "sshfs -o IdentityFile={{ hetznerbackup_default_rsakey }} {{ hetznerbackup_master_user }}@{{ hetznerbackup_master_storagebox }}:/ {{ hetznerbackup_tempmount }}"
+  delegate_to: localhost
+  when:
+    - "mount_check.rc != 0"
+
+- name: storagebox - create backup-dir
+  file:
+    state: directory
+    path: "{{ hetznerbackup_tempmount }}{{ hetznerbackup_maindir }}/{{ inventory_hostname }}"
+  delegate_to: localhost
+
+- name: storagebox - create backup-dir .ssh
+  file:
+    state: directory
+    path: "{{ hetznerbackup_tempmount }}{{ hetznerbackup_maindir }}/{{ inventory_hostname }}/.ssh"
+    mode: 0700
+  delegate_to: localhost
+
+- name: storagebox - create management host keydir if necessary
+  file: 
+    path: "{{ hetznerbackup_keydir }}"
+    state: directory
+  delegate_to: localhost
+
+- name: storagebox - create ssh keypair
+  openssh_keypair:
+    path: "{{ hetznerbackup_keydir }}/id_rsa_{{ inventory_hostname }}"
+    type: rsa
+    size: 2048 
+    state: present
+  delegate_to: localhost
+ 
+- name: storagebox - create authorized_keys file
+  copy:
+    src: "{{ hetznerbackup_keydir }}/id_rsa_{{ inventory_hostname }}.pub"
+    dest: "{{ hetznerbackup_tempmount }}{{ hetznerbackup_maindir }}/{{ inventory_hostname }}/.ssh/authorized_keys"
+    mode: 0600
+  delegate_to: localhost
+
+- name: storagebox - umount complete storagebox
+  command: "umount {{ hetznerbackup_tempmount }}"  
+  delegate_to: localhost
+
+- name: storagebox - delete temporary mount dir
+  file:
+    state: absent
+    path: "{{ hetznerbackup_tempmount }}"
+  delegate_to: localhost
+
+- name: storagebox - get storagebox data from hetzner robot
+  uri:
+    url: "https://robot-ws.your-server.de/storagebox/{{ hetzner_storagebox_id }}/subaccount"
+    user: "{{ hetzner_webservice_user }}" 
+    password: "{{ hetzner_webservice_pass }}"
+    method: GET
+    force_basic_auth: yes
+  register: storagebox_subaccounts_raw
+  delegate_to: localhost
+
+- debug:
+    var: storagebox_subaccounts_raw
+    verbosity: 3
+
+- name: storagebox - get list of subaccounts
+  set_fact:
+    storagebox_subaccounts: "{{ storagebox_subaccounts_raw.json | json_query( query )  }}"
+  vars: 
+    query: "[].subaccount.comment"
+
+- name: storagebox - exists - get account
+  set_fact: 
+    storagebox_subaccount: "{{ storagebox_subaccounts_raw | json_query( query )  }}"
+  vars:
+    query: "json[?subaccount.comment == '{{ inventory_hostname }}'].subaccount.username"  
+  when: 'inventory_hostname in storagebox_subaccounts'
+
+- name: storagebox - set subaccount vars
+  set_fact:
+    storagebox_user: "{{ storagebox_subaccount[0] }}"
+    storagebox_server: "{{ storagebox_subaccount[0] }}.{{ hetznerbackup_storagebox_domain }}"
+  when: 'inventory_hostname in storagebox_subaccounts'
+
+- debug: 
+    var: storagebox_subaccount
+    verbosity: 3
+
+- name: storagebox - create subaccount 
+  uri:
+    url: "https://robot-ws.your-server.de/storagebox/{{ hetzner_storagebox_id }}/subaccount"
+    user: "{{ hetzner_webservice_user }}" 
+    password: "{{ hetzner_webservice_pass }}"
+    method: POST 
+    force_basic_auth: yes
+    body_format: form-urlencoded 
+    body:
+        homedirectory: "{{ hetznerbackup_maindir }}/{{ inventory_hostname }}"
+        comment: "{{ inventory_hostname }}"
+        ssh: "true" 
+        external_reachability: "true"
+  register: storagebox_create_subaccounts_raw
+  delegate_to: localhost
+  when: 'inventory_hostname not in storagebox_subaccounts'
+
+- debug:
+    var: storagebox_create_subaccounts_raw
+    verbosity: 3
+
+- name: storagebox - created - get account
+  set_fact: 
+    storagebox_subaccount: "{{ storagebox_create_subaccounts_raw.json.subaccount.username  }}"
+  when: 'inventory_hostname not in storagebox_subaccounts'
+
+- debug: 
+    var: storagebox_subaccount
+    verbosity: 3
+
+- name: storagebox - set subaccount vars
+  set_fact:
+    storagebox_user: "{{ storagebox_subaccount }}"
+    storagebox_server: "{{ storagebox_subaccount }}.{{ hetznerbackup_storagebox_domain }}"
+  when: 'inventory_hostname not in storagebox_subaccounts'
+
+- debug:
+    var: storagebox_user
+    verbosity: 3
+
+- name: storagebox - copy ssh key to server
+  copy:
+    src: "{{ hetznerbackup_keydir }}/id_rsa_{{ inventory_hostname }}"
+    dest: "/root/.ssh/id_rsa_{{ storagebox_user }}"
+    mode: 0600
+
+- name: storagebox - copy ssh public key to server
+  copy:
+    src: "{{ hetznerbackup_keydir }}/id_rsa_{{ inventory_hostname }}.pub"
+    dest: "/root/.ssh/id_rsa_{{ storagebox_user }}.pub"
+    mode: 0600
+
+

@@ -1,0 +1,7 @@
+/var/log/borg/backup.log {
+	{{ borg_logrotate_interval }}
+	rotate {{ borg_logrotate_rotate }} 
+	compress
+        missingok
+}
+

@@ -1,0 +1,12 @@
+---
+- name: Create backup directory on storagebox
+  include_tasks: prepare_storagebox.yml
+
+- name: Prepare borg
+  include_tasks: borg.yml
+
+- name: Print secrets info
+  debug:
+    msg: "Some secrets have been placed in {{ hetznerbackup_keydir }} on this local admin machine, please consider keeping them in some safe place."
+
+

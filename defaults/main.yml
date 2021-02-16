@@ -1,0 +1,38 @@
+---
+hetznerbackup_master_user: FIXME 
+hetznerbackup_master_storagebox: FIXME.your-backup.de
+hetznerbackup_default_rsakey: ~/.ssh/id_rsa_hetznerbackup
+
+hetznerbackup_tempmount: ~/ansibletempmnt
+hetznerbackup_maindir: "/backups"
+hetznerbackup_keydir: "/tmp/hetznerbackup_keys"
+hetznerbackup_storagebox_domain: "your-backup.de"
+
+hetznerbackup_storagebox_port: 23
+repository_dir: "backups"
+
+
+include_dirs: 
+  - "/root"
+  - "/etc"
+  - "/var"
+  - "/home"
+  - "/usr/local/bin"
+
+exclude_dirs:
+  - "/dev"
+  - "/sys"
+  - "/proc"
+  - "/run"
+  - "/var/run"
+  - "/lost+found"
+  - "/mnt"
+  - "/var/lib/libvirt"
+
+borg_logrotate_interval: "weekly"
+borg_logrotate_rotate: 12
+borg_keep_daily: 7
+borg_keep_weekly: 4
+borg_keep_monthly: 6
+
+

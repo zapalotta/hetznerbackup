@@ -1,0 +1,99 @@
+---
+- name: borg - check if config exists
+  stat:
+    path: /etc/borg_backup.conf
+  register:
+    config_file_result
+
+- fail:
+    msg: "Config file /etc/borg_backup.conf exists"
+  when:
+    - config_file_result.stat.exists
+    - hetznerbackup_ignore_existing_config is not defined
+
+- name: borg - create password
+  set_fact:
+    borg_repopass: "{{ lookup('password', '{{ hetznerbackup_keydir }}/{{ inventory_hostname }}_pass.txt chars=ascii_lowercase,digits length=12') }}" 
+  delegate_to: localhost  
+
+- name: borg - fill includes list
+  set_fact:
+    include_dirs: "{{ include_dirs + hetznerbackup_additional_include_dirs }}"
+  when:
+    - additional_include_dirs is defined
+
+- name: borg - fill excludes list
+  set_fact:
+    exclude_dirs: "{{ exclude_dirs + hetznerbackup_additional_exclude_dirs }}"
+  when:
+    - additional_exclude_dirs is defined
+
+- name: borg - create log dir
+  file:
+    path: /var/log/borg
+    state: directory
+
+- name: borg - install borg backup
+  package:
+    name: borgbackup
+    state: present
+
+- name: borg - copy backup scripts
+  copy:
+    src: "usr/local/bin/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: 0755
+  with_items:
+    - "borg_backup.sh"
+    - "borg_list.sh"
+    - "borg_init.sh"
+    - "borg_mount.sh"
+    - "borg_keyexport.sh"
+    - "borg_info.sh"
+
+- name: borg - create config file
+  template:
+    src: etc/borg_backup.conf.j2
+    dest: /etc/borg_backup.conf
+
+- name: borg - initialize
+  shell: | 
+    /usr/local/bin/borg_init.sh
+  register: borg_init_cmd_raw
+
+- name: borg - create tempfile
+  tempfile:
+    state: file
+  register: borg_key_tempfile
+
+- name: borg - export repo key
+  shell: "/usr/local/bin/borg_keyexport.sh {{ borg_key_tempfile.path }}"
+
+- name: borg - get key
+  slurp:
+    src: "{{ borg_key_tempfile.path }}"
+  register: borg_key
+
+- debug:
+    var: borg_key
+    verbosity: 4
+
+- name: borg - save key
+  copy:
+    content: "{{ borg_key.content }}"
+    dest: "{{ hetznerbackup_keydir }}/{{ inventory_hostname }}.borgkey"
+  delegate_to: localhost
+
+- name: borg - setup cron
+  cron:
+    name: "hetznerbackup borg cron"
+    minute: "{{ hetznerbackup_cron_minute | string }}"
+    hour: "{{ hetznerbackup_cron_hour | string }}"
+    job: "/usr/local/bin/borg_backup.sh"
+
+- name: borg - setup logrotate
+  template:
+    src: etc/logrotate.d/borg.j2
+    dest: /etc/logrotate.d/borg
+
+

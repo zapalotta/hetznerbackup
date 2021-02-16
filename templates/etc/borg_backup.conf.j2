@@ -1,0 +1,18 @@
+LOG="/var/log/borg/backup.log"
+BACKUP_USER="{{ storagebox_user  }}"
+REPOSITORY_HOST="{{ storagebox_server }}"
+REPOSITORY_PORT="{{ hetznerbackup_storagebox_port }}"
+REPOSITORY_DIR="{{ repository_dir }}"
+REPOSITORY_KEY="ssh -i /root/.ssh/id_rsa_{{ storagebox_user }}"
+REPOSITORY_PASS="{{ borg_repopass }}"
+
+BACKUP_TIMESTAMP='now:%Y-%m-%d_%H:%M'
+
+KEEP_DAYLY={{ borg_keep_daily }} 
+KEEP_WEEKLY={{ borg_keep_weekly }}
+KEEP_MONTHLY={{ borg_keep_monthly }}
+
+INCLUDE_FOLDERS="{{ include_dirs | join( ' ' ) }}"
+EXCLUDE_FOLDERS="{{ exclude_dirs | join( ' ' ) }}"
+
+
