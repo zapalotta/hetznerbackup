@@ -3,6 +3,8 @@ Backup a linux machine to hetzner StorageBox using borg backup
 
 Multiple machines can be backupped to the same storagebox. Each machine gets its own subaccount with its own password and ssh key.
 
+
+## What this role does
 * Create a Subaccount on the storage box
 * Add neccessary ssh keys to the subaccount
 * install borg backup on the target host
