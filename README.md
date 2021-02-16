@@ -1,3 +1,20 @@
+Table of Contents
+=================
+
+   * [Purpose](#purpose)
+      * [What this role does](#what-this-role-does)
+   * [Prerequisites](#prerequisites)
+   * [Supported Distros](#supported-distros)
+   * [Storagebox Layout:](#storagebox-layout)
+   * [Example hosts file](#example-hosts-file)
+   * [Example playbook](#example-playbook)
+   * [Usage](#usage)
+      * [Creating the first backup](#creating-the-first-backup)
+      * [Pre and post executing](#pre-and-post-executing)
+   * [Installed scripts](#installed-scripts)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+
 # Purpose
 Backup a linux machine to hetzner StorageBox using borg backup
 
