@@ -12,6 +12,7 @@ Table of Contents
       * [Creating the first backup](#creating-the-first-backup)
       * [Pre and post executing](#pre-and-post-executing)
    * [Installed scripts](#installed-scripts)
+   * [Known Issues](#known-issues)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
@@ -145,4 +146,11 @@ All scripts are installed in ```/usr/local/bin/```
   * Mount the borg repo 
 
 All these scripts make use of the config file ```/etc/borg_backup.conf```. 
+
+# Known Issues
+
+* Borg-Backup 1.0 issues
+  * Due to using UCS4 (Based on Debian 9) the scripts don't use features from Borg 1.1. Using 1.0 with a storagebox may produce issues. I need to implement a version check and add the borg version string to the scripts
+* Only tested with root as ssh user (become should work, too, though I am running backups as root anyway)
+* Monitoring is yet to come
 
