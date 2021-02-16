@@ -101,6 +101,8 @@ After running the playbook you will get some secrets on the ansible machine, see
 
 # Installed scripts
 
+All scripts are installed in ```/usr/local/bin/```
+
 * ```borg_backup.sh```
   * Create a backup
 * ```borg_info.sh```
