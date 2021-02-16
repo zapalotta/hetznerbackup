@@ -55,6 +55,7 @@
   template:
     src: etc/borg_backup.conf.j2
     dest: /etc/borg_backup.conf
+    mode: 0600
 
 - name: borg - initialize
   shell: | 
