@@ -1,0 +1,9 @@
+#!/bin/env ansible-playbook
+
+- name: Hetznerbackup
+  hosts: all
+  remote_user: root
+  gather_facts: yes
+  roles:
+    - hetznerbackup
+
