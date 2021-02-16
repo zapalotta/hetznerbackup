@@ -12,6 +12,7 @@ Multiple machines can be backupped to the same storagebox. Each machine gets its
 * initialize borg backup repo on the storage box
 * install cronjob for backup
 * install some borg management scripts
+* Set up logrotation for backup logs
 
 # Prerequisites
 
