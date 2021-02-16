@@ -46,7 +46,7 @@ It should be working on other distros, too, though the packagename `borgbackup` 
 ```yaml
 backuphosts:
   hosts:
-    docker
+    targethost
   vars:
     hetzner_webservice_user: "XXXXXXX"                                # Get from hetzner robot -> Settings -> Webservice user
     hetzner_webservice_pass: "XXXXXXX"
