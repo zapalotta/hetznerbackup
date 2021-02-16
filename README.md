@@ -91,12 +91,12 @@ Make sure that you can ssh to the master storagebox from the ansible machine.
 
 After running the playbook you will get some secrets on the ansible machine, see the last debug message. Keep them at a safe place
 
-* ucsmaster.borgkey
+* host1.borgkey
   * Borg keyfile
-* ucsmaster_pass.txt
+* host1_pass.txt
   * Borg repo password
-* id_rsa_ucsmaster
-* id_rsa_ucsmaster.pub
+* id_rsa_host1
+* id_rsa_host1.pub
   * Storagebox Subaccount ssh keypair
 
 # Installed scripts
