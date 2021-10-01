@@ -1,0 +1,19 @@
+backuphosts:
+  hosts:
+    targethost
+  vars:
+    hetzner_webservice_user: "XXXXXXX"                                # Get from hetzner robot -> Settings -> Webservice user
+    hetzner_webservice_pass: "XXXXXXX"
+    hetzner_server_id: "123456"                                       # Get from hetzner robot -> Server. e.g. EX41S #123456
+#    hetzner_storagebox_id: "98765"                                   # Optional, will be fetched automatically from the server ID
+    hetznerbackup_master_user: uXXXXXXX                               # User of the main storagebox, usually someting like u123456
+    hetznerbackup_master_storagebox: uXXXXXXX.your-backup.de          # Storagebox Hostname, usually the masterusername.your-backup.de
+    hetznerbackup_default_rsakey: ~/.ssh/id_rsa_hetznerbackup         # Default rsa key for accessing the storagebox
+    hetznerbackup_additional_include_dirs:                            # List of additional dirs to be backupped
+      - "/tmp"
+    hetznerbackup_additional_exclude_dirs:                            # List of additional dirs NOT to be backupped
+      - "/foo"
+    hetznerbackup_cron_hour: 1                                        # Hour for the backup cronjob
+    hetznerbackup_cron_minute: 0                                      # Minute for the backup cronjob
+
+    hetznerbackup_keydir: /tmp/hetznerbackup_keys                     # Directory on the admin host for secrets storage
